@@ -115,16 +115,7 @@ const handleMenuItemClick = (routeName: string) => {
     }
 };
 
-// 监听路由变化 
-onMounted(() => {
-    router.afterEach((to) => {
-        const currentRouteName = to.name as string;
-        const menuItem = findMenuItemByRouteName(currentRouteName);
-        if (menuItem) {
-            activeMenuIndex.value = menuItem.index;
-        }
-    });
-});
+
 
 const handleOpen = () => { };
 const handleClose = () => { };
