@@ -29,7 +29,36 @@
                     </div>
                 </div>
                 <div v-else-if="stepnum == 2" class="show">
-                    <h1>最终确认</h1>
+                    <h2>最终确认</h2>
+                    <div class="carbox">
+                        集装箱：{{ container_list[containerindex].name }}
+                    </div>
+                    <div class="carbox">
+                        <h3>货物清单</h3>
+                        <el-table :data="finalForm.boxes" stripe style="width: 100%">
+                            <el-table-column prop="id" label="编号" width="auto" />
+                            <el-table-column label="货物名称" width="auto">
+                                <template #default="{ row }">
+                                    {{ Box_list[row.id].name }}
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="lx" label="长" width="auto" />
+                            <el-table-column prop="ly" label="宽" width="auto" />
+                            <el-table-column prop="lz" label="高" width="auto" />
+                            <el-table-column label="数量" width="auto">
+                                <template #default="{ row, $index }">
+                                    {{ finalForm.num_list[$index] }}
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="货物质量" width="auto">
+                                <template #default="{ row }">
+                                    {{ Box_list[row.id].mass }}
+                                </template>
+                            </el-table-column>
+                        </el-table>
+
+                    </div>
+
                 </div>
                 <div v-else-if="stepnum == 3" class="show">
                     <trs3d />
@@ -113,10 +142,11 @@ const next = () => {
     }
     else if (stepnum.value == 2) {
         console.log(stepnum.value)
+        finalcheck()
+
     }
     else if (stepnum.value == 3) {
-        //判断表单格式
-        finalcheck()
+        calculateFromForm(finalForm)
 
     }
 
@@ -175,6 +205,15 @@ watch(containerindex, (val) => {
 //步骤3 读取表单
 import { calculateFromForm } from '@/utils/cul_module'
 import { type FormData } from '@/type'
+
+let finalForm: FormData = {
+    containers: [],
+    boxes: [],
+    num_list: []
+}
+
+
+
 function finalcheck() {
     if (checkvalue.value.length <= 0) {
         ElNotification({
@@ -190,16 +229,16 @@ function finalcheck() {
         return
     } else if (containerindex.value < 0 || containerindex.value >= container_list.value.length) {
         ElNotification({
-            message: '请选择容器',
+            message: '请选择集装箱',
         })
         stepnum.value = 1
         return
     }
     const finalcontainer = container_list.value[containerindex.value]
-    const modules = finalcontainer.module
+    const finalmodules = finalcontainer.module
 
-    if (modules.length == 0) {
-        modules.push({
+    if (finalmodules.length == 0) {
+        finalmodules.push({
             lx: finalcontainer.lx,
             ly: finalcontainer.ly,
             lz: finalcontainer.lz,
@@ -209,14 +248,13 @@ function finalcheck() {
             z: 0,
         })
     }
-    console.log('module', modules)
-    const finalForm: FormData = {
-        containers: modules,
+    console.log('module', finalmodules)
+    finalForm = {
+        containers: finalmodules,
         boxes: [],
         num_list: boxnum.value
     }
     for (const item of checkvalue.value) {
-        console.log('hhhh', item)
         const box = Box_list.value[item]
         finalForm.boxes.push({
             lx: box.lx,
@@ -225,11 +263,6 @@ function finalcheck() {
             id: item
         })
     }
-    calculateFromForm(finalForm)
-
-
-
-
 }
 
 
@@ -256,9 +289,10 @@ function finalcheck() {
     background-color: green;
 }
 
+.carbox,
 .sidebarbox {
     margin: 10px;
-    max-width: 500px;
+    /* max-width: 500px; */
     /* 最大宽度限制 */
     background-color: white;
     /* 白色背景 */

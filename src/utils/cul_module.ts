@@ -441,7 +441,6 @@ export function GetShowParams(problems: Problem[], pss: PackingState[]): ShowPar
  */
 export function calculateFromForm(formData: FormData): void {
     const { containers, boxes, num_list } = formData;
-
     // 创建 Space 实例数组
     const containerInstances = containers.map(
         (container) => new Space(container.x, container.y, container.z, container.lx, container.ly, container.lz)
@@ -452,9 +451,10 @@ export function calculateFromForm(formData: FormData): void {
         (box) => new Box(box.lx, box.ly, box.lz, box.id)
     );
 
+
     let currentNumList = [...num_list];
-    const ps_list: PackingState[] = [];
-    const problem_list: Problem[] = [];
+    let ps_list: PackingState[] = [];
+    let problem_list: Problem[] = [];
 
     for (const container of containerInstances) {
         // 创建问题实例
@@ -473,12 +473,15 @@ export function calculateFromForm(formData: FormData): void {
         }
     }
     const Showparams: ShowParamsType = GetShowParams(problem_list, ps_list);
-    console.log('yes', Showparams)
+    
     setTimeout(() => {
         emitter.emit('update-showParams', Showparams);
     }, 100)
+    console.log('formdata',formData)
+    console.log('pslist',ps_list)
+    console.log('num',currentNumList)
 
-
+    
 }
 
 // 计算重心的函数
