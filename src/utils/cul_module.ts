@@ -4,9 +4,9 @@ import { Stack, Box, Space, Problem, Block, Place, PackingState, type FormData }
 import emitter from "@/utils/emitter";
 const MIN_FILL_RATE = 0.9;
 const MIN_AREA_RATE = 0.9;
-const MAX_TIMES = 2;
-const MAX_DEPTH = 3;
-const MAX_BRANCH = 2;
+const MAX_TIMES = 5;
+const MAX_DEPTH = 5;
+const MAX_BRANCH = 5;
 
 // 临时的最优放置方案
 let tmp_best_ps: PackingState | null = null;
@@ -260,17 +260,17 @@ function estimate(ps: PackingState, blockTable: Block[], search_params: Record<s
 // 查找下一个可行块
 function find_next_block(ps: PackingState, blockList: Block[], blockTable: Block[], search_params: Record<string, unknown>): Block {
     let bestBlock = blockList[0];
-    // let bestFitness = 0;
-    // for (let block of blockList) {
-    //     let space = ps.space_stack.peek()!;
-    //     let place = place_block(ps, block);
-    //     let fitness = estimate(ps, blockTable, search_params);
-    //     remove_block(ps, block, place, space);
-    //     if (fitness > bestFitness) {
-    //         bestFitness = fitness;
-    //         bestBlock = block;
-    //     }
-    // }
+    let bestFitness = 0;
+    for (let block of blockList) {
+        let space = ps.space_stack.peek()!;
+        let place = place_block(ps, block);
+        let fitness = estimate(ps, blockTable, search_params);
+        remove_block(ps, block, place, space);
+        if (fitness > bestFitness) {
+            bestFitness = fitness;
+            bestBlock = block;
+        }
+    }
     return bestBlock;
 }
 

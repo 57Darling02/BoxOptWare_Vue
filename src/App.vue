@@ -33,7 +33,7 @@ body,
   min-height: max-content;
   width: 100vw;
   height: 100vh;
-  background-image: url('@/asset/image/login_bg.png');
+  background-image: url('@/asset/image/bg.webp');
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
