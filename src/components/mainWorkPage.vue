@@ -31,7 +31,7 @@
                 <div v-else-if="stepnum == 2" class="show">
                     <h2>最终确认</h2>
                     <div class="carbox">
-                        集装箱：{{ container_list[containerindex].name }}
+                        集装箱：{{ finalForm.name }}
                     </div>
                     <div class="carbox">
                         <h3>货物清单</h3>
@@ -83,8 +83,30 @@
                 <div v-else-if="stepnum == 2" class="sidebarbox">
                     - 根据货物和集装箱类型分配模块
                 </div>
-                <div v-else-if="stepnum == 3" class="sidebarbox">
-                    - 结果分析和可视化
+                <div v-else-if="stepnum == 3">
+                    <div class="sidebarbox">
+                        <h2>集装箱:{{ finalresult.container.name }}</h2>
+                        模块总容积:<br />{{ finalresult.container.volumn }} 平方厘米
+                        <br />
+                        货物体积:<br />{{ finalresult.container.boxesvolumn }} 平方厘米
+                        <br />
+                        体积利用率:<br />{{ finalresult.container.volumnUR * 100 }}%
+                        <br />
+                        重心坐标:<br />{{ finalresult.container.gravityCenter }}
+                        <button @click="show(finalresult.container.allbox,finalresult.container.allmodules,finalresult.container.gravityCenter)">3D</button>
+                    </div>
+                    <div v-for="module in finalresult.modules" class="sidebarbox">
+                        <h4>模块:{{ module.name }}</h4>
+                        模块容积:<br />{{ module.volumn }} 平方厘米
+                        <br />
+                        货物体积:<br />{{ module.boxesvolumn }} 平方厘米
+                        <br />
+                        体积利用率:<br />{{ module.volumnUR * 100 }}%
+                        <br />
+                        重心坐标:<br />{{ module.gravityCenter }}
+                        <button @click="show(module.boxes,[module.showModule],module.showModule.centerPosition)">3D</button>
+
+                    </div>
                 </div>
             </el-scrollbar>
             <div style="padding: 12px; border-top: 1px solid var(--el-border-color)">
@@ -107,30 +129,24 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch, nextTick } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import { useContainerStore } from '@/store/Container'
-
 import { ElNotification, ElLoading, type CheckboxValueType } from 'element-plus'
 import trs3d from './trs3d.vue'
-
+import {  MainCalculate } from '@/utils/cul_module'
 import { storeToRefs } from 'pinia'
+
 
 const containerStore = useContainerStore()
 const { container_list } = storeToRefs(containerStore)
 
 // 全局
 const stepnum = ref(0)
+const finalresult = ref();
 const next = () => {
-    // 在所有操作之前调用 ElLoading.service
-    const loading = ElLoading.service({
-        lock: true,
-        text: 'Loading',
-        background: 'rgba(0, 0, 0, 0.7)',
-    });
     // 推进下一步并限制
     if (++stepnum.value > 3) {
         stepnum.value = 3;
-        loading.close();
         return
     }
 
@@ -143,14 +159,29 @@ const next = () => {
     else if (stepnum.value == 2) {
         console.log(stepnum.value)
         finalcheck()
-
     }
     else if (stepnum.value == 3) {
-        calculateFromForm(finalForm)
+        // calculateFromForm(finalForm)
+
+        (async () => {
+            const loading = ElLoading.service({
+                lock: true,
+                text: 'Loading',
+                background: 'rgba(0, 0, 0, 0.7)',
+            });
+            try {
+                finalresult.value = await MainCalculate(finalForm)
+                console.log('result', finalresult.value)
+            } catch (err) {
+                console.log('计算失败', err)
+            } finally {
+                loading.close();
+            }
+        })()
 
     }
 
-    loading.close();
+
 
 
 };
@@ -198,15 +229,18 @@ const handleCheckAll = (val: CheckboxValueType) => {
 
 // 步骤2选择集装箱
 const containerindex = ref(0)
-watch(containerindex, (val) => {
-    console.log('@@@@', val)
-})
+// watch(containerindex, (val) => {
+//     console.log('@@@@', val)
+// })
 
 //步骤3 读取表单
-import { calculateFromForm } from '@/utils/cul_module'
+
 import { type FormData } from '@/type'
+import emitter from '@/utils/emitter'
+import type { box, module_container } from '@/utils/show3d'
 
 let finalForm: FormData = {
+    name: container_list.value[containerindex.value].name,
     containers: [],
     boxes: [],
     num_list: []
@@ -248,8 +282,8 @@ function finalcheck() {
             z: 0,
         })
     }
-    console.log('module', finalmodules)
     finalForm = {
+        name: container_list.value[containerindex.value].name,
         containers: finalmodules,
         boxes: [],
         num_list: boxnum.value
@@ -265,7 +299,12 @@ function finalcheck() {
     }
 }
 
-
+//展示
+function show(boxes: box[] = [],modules:module_container[] = [],gravityCenter:[number,number,number]){
+    emitter.emit('showModules', modules);
+    emitter.emit('centerOfGravityPosition', gravityCenter);
+    emitter.emit('showBoxes', boxes);
+}
 
 </script>
 

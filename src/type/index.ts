@@ -1,3 +1,5 @@
+import type { box, module_container } from "@/utils/show3d";
+
 // 栈数据结构
 export class Stack<T> {
     private items: T[] = [];
@@ -33,7 +35,7 @@ export class Box {
         public lx: number,
         public ly: number,
         public lz: number,
-        public type: number = 0
+        public id: number = 0
     ) { }
 }
 
@@ -88,7 +90,7 @@ export class Block {
         public lz: number,
         public require_list: number[] = [],
         public children: Block[] = [],
-        public direction: string | null = null
+        public direction: 'x' | 'y' | 'z' | null = null
     ) { }
 
     // 判断两个块是否相等
@@ -133,6 +135,7 @@ export class PackingState {
 
 // 定义前台表单数据类型
 export interface FormData {
+    name:string;
     // 容器信息，每个容器包含 x, y, z 坐标和 lx, ly, lz 尺寸
     containers: {
         name: string;
@@ -162,4 +165,32 @@ export interface MenuItem {
     routeName: string;
     type: 'subMenuTitle' | 'menuItem'; // 区分子菜单标题和普通菜单项 
     children?: MenuItem[]; // 子菜单项数组 
+}
+
+export interface finalResult {
+    modules:{
+        name: string;
+        x: number;
+        y: number;
+        z: number;
+        lx: number;
+        ly: number;
+        lz: number;
+        boxes:box[];
+        volumn: number;
+        boxesvolumn: number;
+        volumnUR: number;
+        gravityCenter: [number,number,number];
+        num_list:number[],
+        showModule:module_container
+    }[];
+    container:{
+        name:string;
+        volumn: number;
+        boxesvolumn: number;
+        volumnUR: number;
+        gravityCenter: [number,number,number];
+        allmodules:module_container[];
+        allbox:box[]
+    }
 }

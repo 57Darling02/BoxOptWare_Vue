@@ -1,5 +1,5 @@
 import { box, module_container, main_container, type ShowParamsType,getLightColorByNumber,getLightColorByType } from '@/utils/show3d'
-import { Stack, Box, Space, Problem, Block, Place, PackingState, type FormData } from '@/type'
+import { Stack, Box, Space, Problem, Block, Place, PackingState, type FormData, type finalResult } from '@/type'
 // 常量定义
 import emitter from "@/utils/emitter";
 const MIN_FILL_RATE = 0.9;
@@ -37,12 +37,12 @@ function combine_common(a: Block, b: Block, combine: Block): void {
 function gen_simple_block(container: Space, box_list: Box[], num_list: number[]): Block[] {
     const blockTable: Block[] = [];
     for (const box of box_list) {
-        for (let nx = 1; nx <= num_list[box.type]; nx++) {
-            for (let ny = 1; ny <= Math.floor(num_list[box.type] / nx); ny++) {
-                for (let nz = 1; nz <= Math.floor(num_list[box.type] / (nx * ny)); nz++) {
+        for (let nx = 1; nx <= num_list[box.id]; nx++) {
+            for (let ny = 1; ny <= Math.floor(num_list[box.id] / nx); ny++) {
+                for (let nz = 1; nz <= Math.floor(num_list[box.id] / (nx * ny)); nz++) {
                     if (box.lx * nx <= container.lx && box.ly * ny <= container.ly && box.lz * nz <= container.lz) {
                         const requires = Array(num_list.length).fill(0);
-                        requires[box.type] = nx * ny * nz;
+                        requires[box.id] = nx * ny * nz;
                         const block = new Block(box.lx * nx, box.ly * ny, box.lz * nz, requires);
                         block.ax = box.lx * nx;
                         block.ay = box.ly * ny;
@@ -440,7 +440,7 @@ export function GetShowParams(problems: Problem[], pss: PackingState[]): ShowPar
  * @param formData 前台表单数据
  */
 export function calculateFromForm(formData: FormData): void {
-    const { containers, boxes, num_list } = formData;
+    const {name, containers, boxes, num_list } = formData;
     // 创建 Space 实例数组
     const containerInstances = containers.map(
         (container) => new Space(container.x, container.y, container.z, container.lx, container.ly, container.lz)
@@ -493,7 +493,7 @@ export function calculateCenterOfGravity(showParams: ShowParamsType): [number, n
 
     // 处理 main_containers
     for (const container of showParams.main_containers) {
-        const mass = 1; // 假设 main_container 质量为 1
+        const mass = 0; // 假设 main_container 质量为 1
         const position = container.centerPosition;
         totalMass += mass;
         totalX += position[0] * mass;
@@ -503,7 +503,7 @@ export function calculateCenterOfGravity(showParams: ShowParamsType): [number, n
 
     // 处理 module_containers
     for (const container of showParams.module_containers) {
-        const mass = 1; // 假设 module_container 质量为 1
+        const mass = 0; // 假设 module_container 质量为 1
         const position = container.centerPosition;
         totalMass += mass;
         totalX += position[0] * mass;
@@ -637,3 +637,34 @@ export async function main() {
 
 
 }
+
+
+
+export const MainCalculate = (input: FormData): Promise<finalResult> => {
+    return new Promise((resolve, reject) => {
+      // 创建Worker实例 
+      const worker = new Worker(
+        new URL('@/workers/block.worker.ts',  import.meta.url),
+        { type: 'module' }
+      )
+      // 设置消息监听 
+      worker.onmessage  = (e: MessageEvent<{
+        type: 'SUCCESS' | 'ERROR',
+        data?: finalResult,
+        error?: string 
+      }>) => {
+        if (e.data.type  === 'SUCCESS') {
+          resolve(e.data.data!) 
+          worker.terminate() 
+        } else {
+          reject(new Error(e.data.error)) 
+          worker.terminate() 
+        }
+      }
+      // 发送计算请求 
+      worker.postMessage({  
+        type: 'CALCULATE',
+        data: JSON.parse(JSON.stringify(input))
+      })
+    })
+  }

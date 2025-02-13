@@ -81,13 +81,11 @@ export function getColorByDimensions(dimensions: [number, number, number]): stri
 class BaseBox {
     // 静态属性，用于记录当前的 index 值
     protected static currentIndex = 0;
-    public id: string;
     public index: number;
-    constructor(className: string) {
+    constructor() {
         // 获取当前的 index 值
         this.index = BaseBox.currentIndex++;
         // 根据类名和 index 生成 id
-        this.id = `${className}_${this.index}`;
     }
 }
 
@@ -102,10 +100,11 @@ class showbox extends BaseBox {
         public transparent: boolean = false,
         public opacity: number = 1,
         public wireframe: boolean = false,
-        public positionType: 'center' | 'corner' = 'corner'
+        public positionType: 'center' | 'corner' = 'corner',
+        public id: number = -1
     ) {
         // 调用基类的构造函数，传入类名
-        super('showbox');
+        super();
         if (positionType === 'center') {
             this.centerPosition = position;
             const [halfWidth, halfHeight, halfDepth] = size.map(dim => dim / 2);
@@ -139,8 +138,7 @@ export class main_container extends showbox {
     ) {
         // 调用父类的构造函数
         super(size, position, color, transparent, opacity, wireframe, positionType);
-        // 更新 id 为 main_container 相关
-        this.id = `main_container_${this.index}`;
+        
     }
 }
 
@@ -157,28 +155,25 @@ export class module_container extends showbox {
     ) {
         // 调用父类的构造函数
         super(size, position, color, transparent, opacity, wireframe, positionType);
-        // 更新 id 为 module_container 相关
-        this.id = `module_container_${this.index}`;
     }
 }
 
-// 定义 box 类，继承自 showbox
+// 定义 货物 类，继承自 showbox
 export class box extends showbox {
     constructor(
         size: [number, number, number],
         position: [number, number, number],
         public mass:number = 1,
-        color: string = '#ffffff',
+        color: string = '',
         transparent: boolean = false,
         opacity: number = 1,
         wireframe: boolean = false,
-        positionType: 'center' | 'corner' = 'corner'
+        positionType: 'center' | 'corner' = 'corner',
+        id:number = -1
     ) {
         // 调用父类的构造函数
-        super(size, position, color, transparent, opacity, wireframe, positionType);
-        // 更新 id 为 box 相关
-        this.id = `box_${this.index}`;
-        if(this.color !== '#ffffff'){
+        super(size, position, color, transparent, opacity, wireframe, positionType,id);
+        if(this.color !== ''){
             this.color = getColorByDimensions(this.size)
         }
         
@@ -217,6 +212,6 @@ type ShowParamsType = {
     main_containers: main_container[];
     module_containers: module_container[];
     boxes: box[];
-
+    gcenter?:[number,number,number] //重心位置参数
 };
 export type { ShowParamsType };
