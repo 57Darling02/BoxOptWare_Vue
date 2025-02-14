@@ -62,12 +62,12 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, watch } from 'vue'
+import { nextTick, onMounted, reactive, ref, watch } from 'vue'
 import { useModuleStore } from '@/store/Module'
 import { ElNotification } from 'element-plus'
-import trs3d from './trs3d.vue'
+import trs3d from './tres3d.vue'
 import emitter from "@/utils/emitter";
-import { box, module_container, main_container, type ShowParamsType } from '@/utils/show3d'
+import { box, module_container } from '@/utils/show3d'
 const ModuleStore = useModuleStore()
 const isValid = ref(false)
 const dialogFormVisible = ref(false)
@@ -85,39 +85,39 @@ const form = reactive({
   z: 1
 })
 
-watch(form, (newValue: any, oldValue) => {
-  const { lx, ly, lz, x ,y ,z } = newValue
-  isValid.value = [lx, ly, lz, x ,y ,z].every(val => typeof val === 'number')
+const emitBoxes = () => {
+  const { lx, ly, lz, x, y, z } = form
+  isValid.value = [lx, ly, lz, x, y, z].every(val => typeof val === 'number')
   if (isValid.value) {
-    const showParams: ShowParamsType = {
-      main_containers: [],
-      module_containers: [
-        new module_container(
-          [lx, ly, lz],
-          [x, y, z],
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          'center'
-        )
-      ],
-      boxes: [
-        new box(
-          [lx, ly, lz],
-          [x, y, z],
-          0,
-          '#FFFFE0',
-          true,
-          0.5,
-          false,
-          'center'
-        )
-      ]
-    }
-    emitter.emit('update-showParams', showParams);
+    emitter.emit('showBoxes', [
+      new box(
+        [lx, ly, lz],
+        [x, y, z],
+        0,
+        '#FFFFE0',
+        true,
+        0.5,
+        false,
+        'corner'
+      )
+    ]);
+    emitter.emit('centerOfGravityPosition', [x+lx/2, y+ly/2, z+lz/2]);
+    emitter.emit('showModules', [
+      new module_container(
+        [lx, ly, lz],
+        [x, y, z],
+        '#FFFFE0',
+        true,
+        0,
+        true,
+        'corner'
+      )
+    ]);
   }
-}, { immediate: true })
+}
+watch(form, () => {
+  emitBoxes()
+}, { immediate: false })
 
 
 ModuleStore.$subscribe((mutate, state) => {
@@ -156,6 +156,12 @@ const openDialog = (index: number) => {
     form.z = 1
   }
   dialogFormVisible.value = true
+  nextTick(() => {
+    // 延迟一小段时间再进行 emit 操作
+    setTimeout(() => {
+      emitBoxes()
+    }, 100);
+  })
 }
 
 const confirmForm = () => {
@@ -174,4 +180,7 @@ const confirmForm = () => {
   }
   dialogFormVisible.value = false
 }
+
+
+
 </script>

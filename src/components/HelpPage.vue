@@ -1,17 +1,25 @@
 <template>
- <div class="main_page">
-    <el-space wrap>
-      <el-card v-for="s in step" :key="s.stepnum"  class="box-card" style="width: 250px; margin: 10px;">
-      <template #header>
-        <div class="card-header">
-          <span>步骤{{ s.stepnum  }}</span>
-          <el-button class="button" text @click="s.operation">前往</el-button>
-        </div>
-      </template>
-      {{ s.description  }}
-    </el-card>
-  </el-space>
- </div>
+  <div class="main_page">
+    <div class="stepHelp">
+      <el-space wrap>
+        <el-card v-for="s in step" :key="s.stepnum" class="box-card" style="width: 250px; margin: 10px;">
+          <template #header>
+            <div class="card-header">
+              <span><b>{{ s.title }}</b></span>
+              <el-button class="button" text @click="s.operation">前往</el-button>
+            </div>
+          </template>
+          {{ s.description }}
+        </el-card>
+      </el-space>
+    </div>
+    <div class="yl">
+      <iframe frameborder="0" scrolling="no"
+                  height="400px"
+                  width="100%"
+                  src="../asset/html/bar.html"></iframe>
+    </div>
+  </div>
 </template>
 <script lang='ts' setup>
 import { useRouter } from 'vue-router';
@@ -19,10 +27,27 @@ const router = useRouter()
 
 const step = [
   {
-    stepnum:1,
-    description:"hhhhhh",
-    operation:() => {
-      router.push({  name: 'boxhouse' });
+    stepnum: 1,
+    title:'货物管理',
+    description: "在仓库中创建/修改你的货物，规定其属性（长宽高质量等）",
+    operation: () => {
+      router.push({ name: 'boxhouse' });
+    }
+  },
+  {
+    stepnum: 2,
+    title:'(可选) 集装箱管理',
+    description: "在仓库中创建/修改规则形状的集装箱，规定其属性（长宽高等）",
+    operation: () => {
+      router.push({ name: 'containerhouse' });
+    }
+  },
+  {
+    stepnum: 3,
+    title:'工作台',
+    description: "进入工作台进行智能装配",
+    operation: () => {
+      router.push({ name: 'mainWorkPage' });
     }
   },
 ];
@@ -30,9 +55,17 @@ const step = [
 
 </script>
 <style scoped>
-    .main_page{
-        background-color: antiquewhite;
-        width: 100%;
-        height: 100%;
-    }
+.main_page {
+  width: 100%;
+  height: 100%;
+}
+.yl,
+.stepHelp {
+  background-color: rgb(248, 241, 241);
+  margin: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 </style>

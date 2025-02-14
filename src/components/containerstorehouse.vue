@@ -27,11 +27,11 @@
     <el-container>
       <el-main>
         <div class="show">
-          hhhh
+
         </div>
         <div class="config">
-          <div class="container-config">
-            <el-form :model="currentform">
+          <div class="box-config">
+            <el-form :model="currentform" v-if="childIndex > 3">
               <!-- 第一行：集装箱名称 -->
               <el-row :gutter="15">
                 <el-col :span="24">
@@ -40,7 +40,6 @@
                   </el-form-item>
                 </el-col>
               </el-row>
-
               <!-- 第二行：长和宽 -->
               <el-row :gutter="15">
                 <el-col :span="12">
@@ -72,21 +71,65 @@
               <!-- 第四行 -->
               <el-row :gutter="15">
                 <el-col :span="12">
-                  <el-button type="primary" style="width:100%" :disabled="childIndex <=3 " @click="confirmForm">修改</el-button>
+                  <el-button type="primary" style="width:100%" @click="confirmForm">修改</el-button>
                 </el-col>
                 <el-col :span="12">
-                  <el-button type="danger" style="width:100%" :disabled="childIndex <=3 " @click="deleteRow">删除</el-button>
+                  <el-button type="danger" style="width:100%" @click="deleteRow">删除</el-button>
                 </el-col>
               </el-row>
             </el-form>
+
+
+            <div v-else-if="childIndex == 1">
+              <div class="name">
+                <b>AKE型集装器</b>
+              </div>
+              <div class="instruction">
+                <img src="@/asset/image/aau.png" alt="aau型" style="width: 100%;">
+                <div class="word">
+                  <el-table :data="aau" :header-cell-style="{ 'text-align': 'center' }"
+                    :cell-style="{ 'text-align': 'center' }" :row-style="{ 'height': '60px' }" style="font-size: 13px">
+                    <el-table-column label="内容量" prop="num"></el-table-column>
+                    <el-table-column label="505cu. ft., 14.3mc" prop="box"></el-table-column>
+                  </el-table>
+                </div>
+              </div>
+            </div>
+            <div v-else-if="childIndex == 2">
+              <div class="name">
+                <b>AKE型集装器</b>
+              </div>
+              <div class="instruction">
+                <div class="pic">
+                  <img src="@/asset/image/ake.png" alt="ake型" style="width: 100%;">
+                </div>
+                <div class="word">
+                  <el-table :data="ake" :header-cell-style="{ 'text-align': 'center' }"
+                    :cell-style="{ 'text-align': 'center' }" :row-style="{ 'height': '60px' }" style="font-size: 13px">
+                    <el-table-column label="内容量" prop="num"></el-table-column>
+                    <el-table-column label="371cu. ft., 10.51mc" prop="box"></el-table-column>
+                  </el-table>
+                </div>
+              </div>
+            </div>
+            <div v-else-if="childIndex == 3">
+              <div class="name">
+                <b>AMF型集装器</b>
+              </div>
+              <div class="instruction">
+                <div class="pic">
+                  <img src="@/asset/image/amf.png" alt="amf型" style="width: 100%;">
+                </div>
+                <div class="word">
+                  <el-table :data="amf" :header-cell-style="{ 'text-align': 'center' }"
+                    :cell-style="{ 'text-align': 'center' }" :row-style="{ 'height': '60px' }" style="font-size: 13px">
+                    <el-table-column label="内容量" prop="num"></el-table-column>
+                    <el-table-column label="516cu. ft., 14.6mc" prop="box"></el-table-column>
+                  </el-table>
+                </div>
+              </div>
+            </div>
           </div>
-
-          <div class="box-config">
-
-
-
-          </div>
-
         </div>
       </el-main>
     </el-container>
@@ -97,7 +140,7 @@
 import { reactive, ref, watch } from 'vue'
 import { useContainerStore } from '@/store/Container'
 import { ElNotification } from 'element-plus'
-import trs3d from './trs3d.vue'
+import trs3d from './tres3d.vue'
 import emitter from "@/utils/emitter";
 import { box, module_container, main_container, type ShowParamsType } from '@/utils/show3d'
 
@@ -198,6 +241,10 @@ const deleteRow = () => {
     });
   }
 };
+
+const ake = [{ num: "数量", box: "319" }, { num: "载具重量", box: "220kg" }, { num: "适载机型", box: "747,747F,777,Airbus" }]
+const amf = [{ num: "数量", box: "319" }, { num: "载具重量", box: "330kg" }, { num: "适载机型", box: "747,747F,777,Airbus" }]
+const aau = [{ num: "数量", box: "319" }, { num: "载具重量", box: "355kg" }, { num: "适载机型", box: "747,747F" }]
 </script>
 
 

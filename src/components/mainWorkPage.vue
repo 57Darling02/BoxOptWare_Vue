@@ -3,7 +3,14 @@
         <el-container>
             <el-main>
                 <div v-if="stepnum == 0" class="show">
-                    <h1>- 选择货物种类</h1>
+                    <h1>- 选择集装箱</h1>
+                    <div class="containerstep">
+                        <el-select v-model="containerindex" placeholder="Select" size="large" style="width: 240px">
+                            <el-option v-for="(item, index) in container_list" :key="item.name" :label="item.name"
+                                :value="index" />
+                        </el-select>
+                    </div>
+                    <h1>- 选择货物种类及数量</h1>
                     <el-select v-model="checkvalue" multiple clearable collapse-tags placeholder="Select goods"
                         popper-class="custom-header" :max-collapse-tags="1" style="width: 240px">
                         <template #header>
@@ -13,22 +20,14 @@
                         </template>
                         <el-option v-for="(item, index) in Box_list" :key="index" :label="item.name" :value="index" />
                     </el-select>
-                    <h1>- 选择货物数量</h1>
+                    
                     <div class="boxstep" v-for="(item, index) in checkvalue">
                         货物 {{ Box_list[item as number].name }} 数量为
                         <el-input-number :min="1" v-model="boxnum[index]" />
                     </div>
                 </div>
+                
                 <div v-else-if="stepnum == 1" class="show">
-                    <h1>- 选择集装箱</h1>
-                    <div class="containerstep">
-                        <el-select v-model="containerindex" placeholder="Select" size="large" style="width: 240px">
-                            <el-option v-for="(item, index) in container_list" :key="item.name" :label="item.name"
-                                :value="index" />
-                        </el-select>
-                    </div>
-                </div>
-                <div v-else-if="stepnum == 2" class="show">
                     <h2>最终确认</h2>
                     <div class="carbox">
                         集装箱：{{ finalForm.name }}
@@ -60,7 +59,7 @@
                     </div>
 
                 </div>
-                <div v-else-if="stepnum == 3" class="show">
+                <div v-else-if="stepnum == 2" class="show">
                     <trs3d />
                 </div>
             </el-main>
@@ -71,41 +70,47 @@
                     <el-steps style="max-width: 600px" :active="stepnum" finish-status="success" align-center>
                         <el-step />
                         <el-step />
-                        <el-step />
                     </el-steps>
                 </div>
                 <div v-if="stepnum == 0" class="sidebarbox">
-                    - 选择货物种类及数量
+                    - 选择集装箱、货物种类及数量
                 </div>
-                <div v-else-if="stepnum == 1" class="sidebarbox">
-                    - 选择集装箱
-                </div>
-                <div v-else-if="stepnum == 2" class="sidebarbox">
-                    - 根据货物和集装箱类型分配模块
-                </div>
-                <div v-else-if="stepnum == 3">
-                    <div class="sidebarbox">
+
+                <div v-if="stepnum == 2 && finalresult != null">
+                    <div class="sidebarbox" @click="show(finalresult.container.allbox,finalresult.container.allmodules,finalresult.container.gravityCenter)">
                         <h2>集装箱:{{ finalresult.container.name }}</h2>
-                        模块总容积:<br />{{ finalresult.container.volumn }} 平方厘米
+                        <b>模块总容积:</b><br />{{ finalresult.container.volumn }} 平方厘米
                         <br />
-                        货物体积:<br />{{ finalresult.container.boxesvolumn }} 平方厘米
+                        <b>货物体积:</b><br />{{ finalresult.container.boxesvolumn }} 平方厘米
                         <br />
-                        体积利用率:<br />{{ finalresult.container.volumnUR * 100 }}%
+                        <b>体积利用率:</b><br />{{ (finalresult.container.volumnUR * 100).toFixed(3) }}%
                         <br />
-                        重心坐标:<br />{{ finalresult.container.gravityCenter }}
+                        <b>重心坐标:</b><br />{{ formatxyz(finalresult.container.gravityCenter) }}
+                        <div class="hw" v-for="(num, index) in finalresult.container.restBoxnum " :key="index">
+                            <div class="hw2" v-if="num">
+                                {{ Box_list[finalForm.boxes[index].id].name }} 剩余数量为 {{finalresult.container.restBoxnum[index]}}
+                            </div>
+                        </div>
+                        
+                        <br />
                         <button @click="show(finalresult.container.allbox,finalresult.container.allmodules,finalresult.container.gravityCenter)">3D</button>
                     </div>
-                    <div v-for="module in finalresult.modules" class="sidebarbox">
+                    <div v-for="module in finalresult.modules" class="sidebarbox" @click="show(module.boxes,[module.showModule],module.showModule.gravityCenter)">
                         <h4>模块:{{ module.name }}</h4>
-                        模块容积:<br />{{ module.volumn }} 平方厘米
+                        <b>模块容积:</b>{{ module.volumn }} 平方厘米
                         <br />
-                        货物体积:<br />{{ module.boxesvolumn }} 平方厘米
+                        <b>货物体积:</b>{{ module.boxesvolumn }} 平方厘米
                         <br />
-                        体积利用率:<br />{{ module.volumnUR * 100 }}%
+                        <b>体积利用率:</b>{{ (module.volumnUR * 100).toFixed(3) }}%
                         <br />
-                        重心坐标:<br />{{ module.gravityCenter }}
-                        <button @click="show(module.boxes,[module.showModule],module.showModule.centerPosition)">3D</button>
-
+                        <b>重心坐标:</b>{{ formatxyz(module.gravityCenter) }}
+                        
+                        <div class="hw" v-for="(num, index) in module.num_list" >
+                            <div class="hw2" v-if="num">
+                                {{ Box_list[finalForm.boxes[index].id].name }} 数量为 {{module.num_list[index]}}
+                            </div>
+                        </div>
+                        <button @click="show(module.boxes,[module.showModule],module.showModule.gravityCenter)">3D</button>
                     </div>
                 </div>
             </el-scrollbar>
@@ -132,7 +137,7 @@
 import { reactive, ref, watch } from 'vue'
 import { useContainerStore } from '@/store/Container'
 import { ElNotification, ElLoading, type CheckboxValueType } from 'element-plus'
-import trs3d from './trs3d.vue'
+import trs3d from './tres3d.vue'
 import {  MainCalculate } from '@/utils/cul_module'
 import { storeToRefs } from 'pinia'
 
@@ -143,26 +148,25 @@ const { container_list } = storeToRefs(containerStore)
 // 全局
 const stepnum = ref(0)
 const finalresult = ref();
+const formatxyz= (xyz:[number,number,number]) => {
+  return xyz.map(num => num.toFixed(1));
+};
 const next = () => {
     // 推进下一步并限制
-    if (++stepnum.value > 3) {
-        stepnum.value = 3;
+    if (++stepnum.value > 2) {
+        stepnum.value = 2;
         return
     }
 
     if (stepnum.value == 0) {
         console.log(stepnum.value)
     }
+    
     else if (stepnum.value == 1) {
-        console.log(stepnum.value)
-    }
-    else if (stepnum.value == 2) {
         console.log(stepnum.value)
         finalcheck()
     }
-    else if (stepnum.value == 3) {
-        // calculateFromForm(finalForm)
-
+    else if (stepnum.value == 2) {
         (async () => {
             const loading = ElLoading.service({
                 lock: true,
@@ -172,10 +176,12 @@ const next = () => {
             try {
                 finalresult.value = await MainCalculate(finalForm)
                 console.log('result', finalresult.value)
+                show(finalresult.value.container.allbox,finalresult.value.container.allmodules,finalresult.value.container.gravityCenter)
             } catch (err) {
                 console.log('计算失败', err)
             } finally {
                 loading.close();
+                
             }
         })()
 
@@ -229,9 +235,7 @@ const handleCheckAll = (val: CheckboxValueType) => {
 
 // 步骤2选择集装箱
 const containerindex = ref(0)
-// watch(containerindex, (val) => {
-//     console.log('@@@@', val)
-// })
+
 
 //步骤3 读取表单
 
@@ -239,12 +243,12 @@ import { type FormData } from '@/type'
 import emitter from '@/utils/emitter'
 import type { box, module_container } from '@/utils/show3d'
 
-let finalForm: FormData = {
+let finalForm: FormData = reactive({
     name: container_list.value[containerindex.value].name,
     containers: [],
     boxes: [],
     num_list: []
-}
+})
 
 
 
@@ -317,7 +321,6 @@ function show(boxes: box[] = [],modules:module_container[] = [],gravityCenter:[n
     /* 确保 maincontainer 占据父容器的全部高度 */
     display: flex;
     overflow: hidden;
-
 }
 
 
@@ -325,7 +328,11 @@ function show(boxes: box[] = [],modules:module_container[] = [],gravityCenter:[n
     width: 100%;
     height: 100%;
     box-sizing: border-box;
-    background-color: green;
+    background-color: rgb(248, 241, 241);
+    margin: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .carbox,
@@ -333,7 +340,7 @@ function show(boxes: box[] = [],modules:module_container[] = [],gravityCenter:[n
     margin: 10px;
     /* max-width: 500px; */
     /* 最大宽度限制 */
-    background-color: white;
+    background-color: rgb(248, 241, 241);
     /* 白色背景 */
     padding: 20px;
     /* 内边距 */
@@ -341,12 +348,12 @@ function show(boxes: box[] = [],modules:module_container[] = [],gravityCenter:[n
     /* 圆角 */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     /* 阴影效果 */
+    
 }
 
 
 .layout-container .el-aside {
     color: var(--el-text-color-primary);
-    background: var(--el-color-primary-light-8);
 }
 
 .layout-container .el-menu {

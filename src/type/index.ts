@@ -191,6 +191,7 @@ export interface finalResult {
         volumnUR: number;
         gravityCenter: [number,number,number];
         allmodules:module_container[];
-        allbox:box[]
+        allbox:box[];
+        restBoxnum:number[]
     }
 }

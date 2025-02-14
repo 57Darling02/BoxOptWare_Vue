@@ -1,7 +1,7 @@
 import { box, module_container,getLightColorByType } from '@/utils/show3d'
 import { Stack, Box, Space, Problem, Block, Place, PackingState, type FormData, type finalResult } from '@/type'
 
-const MIN_FILL_RATE = 0.9;
+const MIN_FILL_RATE = 0.5;
 const MIN_AREA_RATE = 0.9;
 const MAX_TIMES = 5;
 const MAX_DEPTH = 6;
@@ -259,17 +259,17 @@ function estimate(ps: PackingState, blockTable: Block[], search_params: Record<s
 // 查找下一个可行块
 function find_next_block(ps: PackingState, blockList: Block[], blockTable: Block[], search_params: Record<string, unknown>): Block {
     let bestBlock = blockList[0];
-    let bestFitness = 0;
-    for (let block of blockList) {
-        let space = ps.space_stack.peek()!;
-        let place = place_block(ps, block);
-        let fitness = estimate(ps, blockTable, search_params);
-        remove_block(ps, block, place, space);
-        if (fitness > bestFitness) {
-            bestFitness = fitness;
-            bestBlock = block;
-        }
-    }
+    // let bestFitness = 0;
+    // for (let block of blockList) {
+    //     let space = ps.space_stack.peek()!;
+    //     let place = place_block(ps, block);
+    //     let fitness = estimate(ps, blockTable, search_params);
+    //     remove_block(ps, block, place, space);
+    //     if (fitness > bestFitness) {
+    //         bestFitness = fitness;
+    //         bestBlock = block;
+    //     }
+    // }
     return bestBlock;
 }
 
@@ -418,7 +418,8 @@ const calculate = (formData: FormData): finalResult => {
             volumnUR: 0,
             gravityCenter: [0, 0, 0],
             allmodules: [],
-            allbox: []
+            allbox: [],
+            restBoxnum: []
         }
     }
 
@@ -494,6 +495,7 @@ const calculate = (formData: FormData): finalResult => {
     }
     finalResult.container.gravityCenter = calculateCenterOfGravity(allboxes)
     finalResult.container.volumnUR = finalResult.container.boxesvolumn / finalResult.container.volumn
+    finalResult.container.restBoxnum = currentNumList
     // console.log('formdata', formData.boxes)
     // console.log('num', currentNumList)
     return finalResult

@@ -56,10 +56,10 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, watch } from 'vue'
+import { nextTick, reactive, ref, watch } from 'vue'
 import { useBoxStore } from '@/store/Box'
 import { ElNotification } from 'element-plus'
-import trs3d from './trs3d.vue'
+import trs3d from './tres3d.vue'
 import emitter from "@/utils/emitter";
 import { box, module_container, main_container, type ShowParamsType } from '@/utils/show3d'
 const BoxStore = useBoxStore()
@@ -74,39 +74,38 @@ const form = reactive({
   lz: 1,
   mass: 1,
 })
-
-watch(form, (newValue: any, oldValue) => {
-  const { lx, ly, lz, mass } = newValue
+const emitBoxes = () => {
+  const { lx, ly, lz,mass} = form
   isValid.value = [lx, ly, lz, mass].every(val => typeof val === 'number')
   if (isValid.value) {
-    const showParams: ShowParamsType = {
-      main_containers: [],
-      module_containers: [
-        new module_container(
-          [lx, ly, lz],
-          [0, 0, 0],
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          'center'
-        )
-      ],
-      boxes: [
-        new box(
-          [lx, ly, lz],
-          [0, 0, 0],
-          mass,
-          '#FFFFE0',
-          true,
-          0.5,
-          false,
-          'center'
-        )
-      ]
-    }
-    emitter.emit('update-showParams', showParams);
+    emitter.emit('showBoxes', [
+      new box(
+        [lx, ly, lz],
+        [0, 0, 0],
+        0,
+        '#FFFFE0',
+        true,
+        0.5,
+        false,
+        'center'
+      )
+    ]);
+    emitter.emit('centerOfGravityPosition', [0,0,0]);
+    emitter.emit('showModules', [
+      new module_container(
+        [lx, ly, lz],
+        [0, 0, 0],
+        '#FFFFE0',
+        true,
+        0,
+        false,
+        'center'
+      )
+    ]);
   }
+}
+watch(form, (newValue: any, oldValue) => {
+  emitBoxes()
 }, { immediate: true })
 
 BoxStore.$subscribe((mutate, state) => {
@@ -139,6 +138,12 @@ const openDialog = (index: number) => {
     form.mass = 1
   }
   dialogFormVisible.value = true
+  nextTick(() => {
+    // 延迟一小段时间再进行 emit 操作
+    setTimeout(() => {
+      emitBoxes()
+    }, 100);
+  })
 }
 const confirmForm = () => {
   if (editIndex.value !== -1) {
