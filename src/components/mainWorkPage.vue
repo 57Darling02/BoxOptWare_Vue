@@ -76,6 +76,9 @@
                 <div v-if="stepnum == 0" class="sidebarbox">
                     - 选择集装箱、货物种类及数量
                 </div>
+                <div v-if="stepnum == 1" class="sidebarbox" style="height: 500px;">
+                    <EChartsPie :title="'货物使用情况'" :legend-data="pieLegendData" :series-data="pieSeriesData" />
+                </div>
 
                 <div v-if="stepnum == 2 && finalresult != null">
                     <div class="sidebarbox"
@@ -158,6 +161,7 @@ import { ElNotification, ElLoading, type CheckboxValueType } from 'element-plus'
 import tres3d from './tres3dprop.vue'
 import { MainCalculate } from '@/utils/cul_module'
 import { storeToRefs } from 'pinia'
+import EChartsPie from '@/components/EChartsPie.vue';
 
 const containerStore = useContainerStore()
 const { container_list } = storeToRefs(containerStore)
@@ -274,7 +278,6 @@ const handleCheckAll = (val: CheckboxValueType) => {
 //步骤3 读取表单
 import { type FormData } from '@/type'
 import type { box, main_container, module_container } from '@/utils/show3d'
-import { number } from 'echarts'
 
 let finalForm: FormData = reactive({
     name: container_list.value[containerindex.value].name,
@@ -282,7 +285,28 @@ let finalForm: FormData = reactive({
     boxes: [],
     num_list: []
 })
+// 计算饼图的图例数据和系列数据
+const pieLegendData = computed(() => {
+  const names = new Set<string>();
+  finalForm.boxes.forEach((box) => {
+    names.add(Box_list.value[box.id].name);
+  });
+  return Array.from(names);
+});
 
+const pieSeriesData = computed(() => {
+  const dataMap = new Map<string, number>();
+  finalForm.boxes.forEach((box, index) => {
+    const name = Box_list.value[box.id].name;
+    const quantity = finalForm.num_list[index];
+    if (dataMap.has(name)) {
+      dataMap.set(name, dataMap.get(name)! + quantity);
+    } else {
+      dataMap.set(name, quantity);
+    }
+  });
+  return Array.from(dataMap.entries()).map(([name, value]) => ({ value, name }));
+});
 
 
 function finalcheck() {

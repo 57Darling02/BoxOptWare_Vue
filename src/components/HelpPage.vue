@@ -15,14 +15,13 @@
     </div>
     <div class="yl">
       <EChartsPie
-        :title="'Traffic Sources'"
-        :legend-data="['Direct', 'Email', 'Ad Networks', 'Video Ads', 'Search Engines']"
+        :title="'三大集装箱使用量'"
+        :legend-data="['AMF', 'AKE', 'AUU']"
         :series-data="[
-          { value: 335, name: 'Direct' },
-          { value: 310, name: 'Email' },
-          { value: 234, name: 'Ad Networks' },
-          { value: 135, name: 'Video Ads' },
-          { value: 1548, name: 'Search Engines' },
+          { value: 335, name: 'AMF' },
+          { value: 310, name: 'AKE' },
+          { value: 234, name: 'AUU' },
+          
         ]"
       />
     </div>
