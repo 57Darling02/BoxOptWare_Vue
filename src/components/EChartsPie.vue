@@ -12,7 +12,7 @@ import {
   LegendComponent,
 } from 'echarts/components';
 import VChart from 'vue-echarts';
-import { ref, defineProps, computed } from 'vue';
+import { ref, defineProps, computed, watch } from 'vue';
 import type { EChartsOption } from 'echarts';
 
 // 使用 echarts 模块和组件
@@ -63,6 +63,16 @@ const chartOption = computed<EChartsOption>(() => ({
     },
   ],
 }));
+
+// 监听 props 变化，强制更新图表
+watch(
+  [() => props.legendData, () => props.seriesData],
+  () => {
+    console.log('aaaa')
+  },
+  { deep: true }
+);
+
 </script>
 
 <style scoped>
