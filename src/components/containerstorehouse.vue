@@ -210,6 +210,7 @@ const show = () => {
       )
     }
     module_containers.value = mds
+    boxes.value = []
   }
 }
 watch(currentform, (newValue: any, oldValue) => {
