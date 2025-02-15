@@ -27,7 +27,8 @@
     <el-container>
       <el-main>
         <div class="show">
-
+          <tres3d :main_containers="main_containers" :module_containers="module_containers" :boxes="boxes"
+            :centerOfGravity="centerOfGravity"></tres3d>
         </div>
         <div class="config">
           <div class="box-config">
@@ -140,8 +141,7 @@
 import { reactive, ref, watch } from 'vue'
 import { useContainerStore } from '@/store/Container'
 import { ElNotification } from 'element-plus'
-import trs3d from './tres3d.vue'
-import emitter from "@/utils/emitter";
+import tres3d from '@/components/tres3dprop.vue'
 import { box, module_container, main_container, type ShowParamsType } from '@/utils/show3d'
 
 import { storeToRefs } from 'pinia'
@@ -160,6 +160,46 @@ const currentform = reactive({
   module: []
 })
 
+const main_containers = ref([] as main_container[])
+const module_containers = ref([] as module_container[])
+const boxes = ref([] as box[])
+const centerOfGravity = ref([0, 0, 0] as [number, number, number])
+
+const show = () => {
+  const { lx, ly, lz, mass } = currentform
+  const isValid = [lx, ly, lz, mass].every(val => typeof val === 'number')
+  if (isValid && childIndex.value > 3) {
+    boxes.value = [
+      new box(
+        [lx, ly, lz],
+        [0, 0, 0],
+        0,
+        '#A39480',
+        false,
+        0.5,
+        false,
+        'center'
+      )
+    ];
+    module_containers.value = [
+      new module_container(
+        [lx, ly, lz],
+        [0, 0, 0],
+        '#FFFFE0',
+        false,
+        1,
+        true,
+        'center'
+      )
+    ];
+  } else {
+    //航空集装箱建模输入
+
+  }
+}
+watch(currentform, (newValue: any, oldValue) => {
+  show()
+}, { immediate: true })
 
 watch(editIndex, (newValue, oldValue) => {
   console.log(newValue)

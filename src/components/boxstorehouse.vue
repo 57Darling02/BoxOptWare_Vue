@@ -21,7 +21,12 @@
     <div class="dialog" style="position: relative; display: flex; flex-direction: row;">
       <div class="td-container"
         style="flex-direction:column; max-width:90%;max-height: 90%; width: 500px;height: 500px;;position: relative;">
-        <trs3d />
+        <tres3d
+          :main_containers="main_containers"
+          :module_containers="module_containers"
+          :boxes="boxes"
+          :centerOfGravity="centerOfGravity"
+        ></tres3d>
       </div>
       <div class="form-container">
         <el-form :model="form">
@@ -56,11 +61,10 @@
 </template>
 
 <script lang="ts" setup>
-import { nextTick, reactive, ref, watch } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import { useBoxStore } from '@/store/Box'
 import { ElNotification } from 'element-plus'
-import trs3d from './tres3d.vue'
-import emitter from "@/utils/emitter";
+import tres3d from './tres3dprop.vue'
 import { box, module_container, main_container, type ShowParamsType } from '@/utils/show3d'
 const BoxStore = useBoxStore()
 const isValid = ref(false)
@@ -74,38 +78,41 @@ const form = reactive({
   lz: 1,
   mass: 1,
 })
-const emitBoxes = () => {
+
+const main_containers = ref([] as main_container[])
+const module_containers = ref([] as module_container[])
+const boxes = ref([] as box[])
+const centerOfGravity = ref([0, 0, 0] as [number, number, number])
+
+watch(form, (newValue: any, oldValue) => {
   const { lx, ly, lz,mass} = form
   isValid.value = [lx, ly, lz, mass].every(val => typeof val === 'number')
   if (isValid.value) {
-    emitter.emit('showBoxes', [
+    boxes.value = [
       new box(
         [lx, ly, lz],
         [0, 0, 0],
         0,
-        '#FFFFE0',
-        true,
+        '#A39480',
+        false,
         0.5,
         false,
         'center'
       )
-    ]);
-    emitter.emit('centerOfGravityPosition', [0,0,0]);
-    emitter.emit('showModules', [
+    ];
+    centerOfGravity.value =  [0,0,0];
+    module_containers.value = [
       new module_container(
         [lx, ly, lz],
         [0, 0, 0],
         '#FFFFE0',
-        true,
-        0,
         false,
+        1,
+        true,
         'center'
       )
-    ]);
+    ];
   }
-}
-watch(form, (newValue: any, oldValue) => {
-  emitBoxes()
 }, { immediate: true })
 
 BoxStore.$subscribe((mutate, state) => {
@@ -138,12 +145,6 @@ const openDialog = (index: number) => {
     form.mass = 1
   }
   dialogFormVisible.value = true
-  nextTick(() => {
-    // 延迟一小段时间再进行 emit 操作
-    setTimeout(() => {
-      emitBoxes()
-    }, 100);
-  })
 }
 const confirmForm = () => {
   if (editIndex.value !== -1) {

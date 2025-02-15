@@ -20,13 +20,13 @@
                         </template>
                         <el-option v-for="(item, index) in Box_list" :key="index" :label="item.name" :value="index" />
                     </el-select>
-                    
+
                     <div class="boxstep" v-for="(item, index) in checkvalue">
                         货物 {{ Box_list[item as number].name }} 数量为
                         <el-input-number :min="1" v-model="boxnum[index]" />
                     </div>
                 </div>
-                
+
                 <div v-else-if="stepnum == 1" class="show">
                     <h2>最终确认</h2>
                     <div class="carbox">
@@ -60,7 +60,8 @@
 
                 </div>
                 <div v-else-if="stepnum == 2" class="show">
-                    <trs3d />
+                    <tres3d :main_containers="main_containers" :module_containers="module_containers" :boxes="boxes"
+                        :centerOfGravity="centerOfGravity"></tres3d>
                 </div>
             </el-main>
         </el-container>
@@ -77,25 +78,41 @@
                 </div>
 
                 <div v-if="stepnum == 2 && finalresult != null">
-                    <div class="sidebarbox" @click="show(finalresult.container.allbox,finalresult.container.allmodules,finalresult.container.gravityCenter)">
+                    <div class="sidebarbox"
+                        @click="show(finalresult.container.allbox, finalresult.container.allmodules, finalresult.container.gravityCenter)">
                         <h2>集装箱:{{ finalresult.container.name }}</h2>
                         <b>模块总容积:</b><br />{{ finalresult.container.volumn }} 平方厘米
                         <br />
                         <b>货物体积:</b><br />{{ finalresult.container.boxesvolumn }} 平方厘米
                         <br />
-                        <b>体积利用率:</b><br />{{ (finalresult.container.volumnUR * 100).toFixed(3) }}%
+                        <b>体积利用率:</b>{{ (finalresult.container.volumnUR * 100).toFixed(3) }}%
                         <br />
-                        <b>重心坐标:</b><br />{{ formatxyz(finalresult.container.gravityCenter) }}
+                        <b>重心坐标:</b><br />
+                        x:{{ formatxyz(finalresult.container.gravityCenter)[0] }}
+                        y:{{ formatxyz(finalresult.container.gravityCenter)[1] }}
+                        z:{{ formatxyz(finalresult.container.gravityCenter)[2] }}
+                        <br /><b>中心坐标:</b><br />
+                        x:{{ formatxyz(geometric_center)[0] }}
+                        y:{{ formatxyz(geometric_center)[1] }}
+                        z:{{ formatxyz(geometric_center)[2] }}
+                        <br /><b>相对中心偏移:</b><br />
+                        x:{{ (geometric_center[0] - finalresult.container.gravityCenter[0]).toFixed(3) }}
+                        y:{{ (geometric_center[1] - finalresult.container.gravityCenter[1]).toFixed(3) }}
+                        z:{{ (geometric_center[2] - finalresult.container.gravityCenter[2]).toFixed(3) }}
                         <div class="hw" v-for="(num, index) in finalresult.container.restBoxnum " :key="index">
                             <div class="hw2" v-if="num">
-                                {{ Box_list[finalForm.boxes[index].id].name }} 剩余数量为 {{finalresult.container.restBoxnum[index]}}
+                                {{ Box_list[finalForm.boxes[index].id].name }} 剩余数量为
+                                {{ finalresult.container.restBoxnum[index] }}
                             </div>
                         </div>
-                        
+
                         <br />
-                        <button @click="show(finalresult.container.allbox,finalresult.container.allmodules,finalresult.container.gravityCenter)">3D</button>
+                        <button
+                            @click="show(finalresult.container.allbox, finalresult.container.allmodules, finalresult.container.gravityCenter)">3D</button>
                     </div>
-                    <div v-for="module in finalresult.modules" class="sidebarbox" @click="show(module.boxes,[module.showModule],module.showModule.gravityCenter)">
+                    <div v-for="(module, index) in finalresult.modules" class="sidebarbox"
+                        :key="`module_${module.name}_${index}`"
+                        @click="show(module.boxes, [module.showModule], module.gravityCenter)">
                         <h4>模块:{{ module.name }}</h4>
                         <b>模块容积:</b>{{ module.volumn }} 平方厘米
                         <br />
@@ -104,13 +121,14 @@
                         <b>体积利用率:</b>{{ (module.volumnUR * 100).toFixed(3) }}%
                         <br />
                         <b>重心坐标:</b>{{ formatxyz(module.gravityCenter) }}
-                        
-                        <div class="hw" v-for="(num, index) in module.num_list" >
+
+                        <div class="hw" v-for="(num, index) in module.num_list" :key="`hw_${module.name}_${index}`">
                             <div class="hw2" v-if="num">
-                                {{ Box_list[finalForm.boxes[index].id].name }} 数量为 {{module.num_list[index]}}
+                                {{ Box_list[finalForm.boxes[index].id].name }} 数量为 {{ module.num_list[index] }}
                             </div>
                         </div>
-                        <button @click="show(module.boxes,[module.showModule],module.showModule.gravityCenter)">3D</button>
+                        <button :key="`module_${module.name}`"
+                            @click="show(module.boxes, [module.showModule], module.gravityCenter)">3D</button>
                     </div>
                 </div>
             </el-scrollbar>
@@ -134,22 +152,44 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { useContainerStore } from '@/store/Container'
 import { ElNotification, ElLoading, type CheckboxValueType } from 'element-plus'
-import trs3d from './tres3d.vue'
-import {  MainCalculate } from '@/utils/cul_module'
+import tres3d from './tres3dprop.vue'
+import { MainCalculate } from '@/utils/cul_module'
 import { storeToRefs } from 'pinia'
-
 
 const containerStore = useContainerStore()
 const { container_list } = storeToRefs(containerStore)
+const geometric_center = computed<[x: number, y: number, z: number]>(() => {
+    if (!finalresult.value || !finalresult.value.container || !finalresult.value.container.allmodules) {
+        return [0, 0, 0]; // 如果 finalresult.value 为空或者结构不完整，返回 [0, 0, 0]
+    }
+    let sumX = 0;
+    let sumY = 0;
+    let sumZ = 0;
+    const allObjects = [
+        ...finalresult.value.container.allmodules,
+    ];
 
+    for (const obj of allObjects) {
+        const [X, Y, Z] = obj.centerPosition;
+        sumX += X;
+        sumY += Y;
+        sumZ += Z;
+    }
+
+    const count = allObjects.length;
+    const centerX = sumX / count;
+    const centerY = sumY / count;
+    const centerZ = sumZ / count;
+    return [centerX, centerY, centerZ];
+});
 // 全局
 const stepnum = ref(0)
 const finalresult = ref();
-const formatxyz= (xyz:[number,number,number]) => {
-  return xyz.map(num => num.toFixed(1));
+const formatxyz = (xyz: [number, number, number]) => {
+    return xyz.map(num => num.toFixed(1));
 };
 const next = () => {
     // 推进下一步并限制
@@ -161,7 +201,7 @@ const next = () => {
     if (stepnum.value == 0) {
         console.log(stepnum.value)
     }
-    
+
     else if (stepnum.value == 1) {
         console.log(stepnum.value)
         finalcheck()
@@ -175,13 +215,12 @@ const next = () => {
             });
             try {
                 finalresult.value = await MainCalculate(finalForm)
-                console.log('result', finalresult.value)
-                show(finalresult.value.container.allbox,finalresult.value.container.allmodules,finalresult.value.container.gravityCenter)
+                show(finalresult.value.container.allbox, finalresult.value.container.allmodules, finalresult.value.container.gravityCenter)
             } catch (err) {
                 console.log('计算失败', err)
             } finally {
                 loading.close();
-                
+
             }
         })()
 
@@ -197,9 +236,6 @@ const pre = () => {
         return
     }
 }
-
-
-// 步骤一
 import { useBoxStore } from '@/store/Box'
 const BoxStore = useBoxStore()
 const { Box_list } = storeToRefs(BoxStore)
@@ -207,6 +243,7 @@ const boxcheckAll = ref(false)
 const indeterminate = ref(false)
 const checkvalue = ref<number[]>([])
 const boxnum = ref<number[]>([]);
+const containerindex = ref(0)
 watch(checkvalue, (val) => {
     if (val.length === 0) {
         boxcheckAll.value = false
@@ -233,15 +270,11 @@ const handleCheckAll = (val: CheckboxValueType) => {
 }
 
 
-// 步骤2选择集装箱
-const containerindex = ref(0)
-
 
 //步骤3 读取表单
-
 import { type FormData } from '@/type'
-import emitter from '@/utils/emitter'
-import type { box, module_container } from '@/utils/show3d'
+import type { box, main_container, module_container } from '@/utils/show3d'
+import { number } from 'echarts'
 
 let finalForm: FormData = reactive({
     name: container_list.value[containerindex.value].name,
@@ -298,16 +331,36 @@ function finalcheck() {
             lx: box.lx,
             ly: box.ly,
             lz: box.lz,
-            id: item
+            id: item,
+            mass: box.mass
         })
     }
 }
 
 //展示
-function show(boxes: box[] = [],modules:module_container[] = [],gravityCenter:[number,number,number]){
-    emitter.emit('showModules', modules);
-    emitter.emit('centerOfGravityPosition', gravityCenter);
-    emitter.emit('showBoxes', boxes);
+const main_containers = reactive([] as main_container[])
+const module_containers = reactive([] as module_container[])
+const boxes = reactive([] as box[])
+const centerOfGravity = reactive([0, 0, 0] as [number, number, number])
+
+function show(Boxes: box[] = [], modules: module_container[] = [], gravityCenter: [number, number, number]) {
+    // 清空原有数据
+    boxes.splice(0, boxes.length);
+    module_containers.splice(0, module_containers.length);
+
+    // 添加新数据
+    Boxes.forEach(box => boxes.push(box));
+    modules.forEach(module => module_containers.push(module));
+
+    // 更新重心坐标
+    centerOfGravity[0] = gravityCenter[0];
+    centerOfGravity[1] = gravityCenter[1];
+    centerOfGravity[2] = gravityCenter[2];
+
+    // module_containers.assign = modules;
+    // centerOfGravity.value = gravityCenter;
+    // boxes.value = Boxes;
+
 }
 
 </script>
@@ -348,7 +401,7 @@ function show(boxes: box[] = [],modules:module_container[] = [],gravityCenter:[n
     /* 圆角 */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     /* 阴影效果 */
-    
+
 }
 
 

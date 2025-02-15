@@ -152,6 +152,7 @@ export interface FormData {
         ly: number;
         lz: number;
         id: number;
+        mass:number;
     }[];
     // 每个箱体的初始数量
     num_list: number[];

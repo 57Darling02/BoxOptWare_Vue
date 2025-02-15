@@ -14,21 +14,29 @@
       </el-space>
     </div>
     <div class="yl">
-      <iframe frameborder="0" scrolling="no"
-                  height="400px"
-                  width="100%"
-                  src="../asset/html/bar.html"></iframe>
+      <EChartsPie
+        :title="'Traffic Sources'"
+        :legend-data="['Direct', 'Email', 'Ad Networks', 'Video Ads', 'Search Engines']"
+        :series-data="[
+          { value: 335, name: 'Direct' },
+          { value: 310, name: 'Email' },
+          { value: 234, name: 'Ad Networks' },
+          { value: 135, name: 'Video Ads' },
+          { value: 1548, name: 'Search Engines' },
+        ]"
+      />
     </div>
   </div>
 </template>
 <script lang='ts' setup>
 import { useRouter } from 'vue-router';
+import EChartsPie from '@/components/EChartsPie.vue';
 const router = useRouter()
 
 const step = [
   {
     stepnum: 1,
-    title:'货物管理',
+    title: '货物管理',
     description: "在仓库中创建/修改你的货物，规定其属性（长宽高质量等）",
     operation: () => {
       router.push({ name: 'boxhouse' });
@@ -36,7 +44,7 @@ const step = [
   },
   {
     stepnum: 2,
-    title:'(可选) 集装箱管理',
+    title: '(可选) 集装箱管理',
     description: "在仓库中创建/修改规则形状的集装箱，规定其属性（长宽高等）",
     operation: () => {
       router.push({ name: 'containerhouse' });
@@ -44,7 +52,7 @@ const step = [
   },
   {
     stepnum: 3,
-    title:'工作台',
+    title: '工作台',
     description: "进入工作台进行智能装配",
     operation: () => {
       router.push({ name: 'mainWorkPage' });
@@ -58,7 +66,10 @@ const step = [
 .main_page {
   width: 100%;
   height: 100%;
+  display: flex;
+  flex-direction: column;
 }
+
 .yl,
 .stepHelp {
   background-color: rgb(248, 241, 241);
@@ -68,4 +79,8 @@ const step = [
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.yl {
+  display: flex;
+  flex: 1
+}
 </style>

@@ -464,7 +464,7 @@ const calculate = (formData: FormData): finalResult => {
                 const newBox = new box(
                     [bp[3], bp[4], bp[5]],
                     [bp[0], bp[1], bp[2]],
-                    1,
+                    boxes[bp[6]].mass,
                     getLightColorByType(boxes[bp[6]].id),
                     true,
                     0.5,

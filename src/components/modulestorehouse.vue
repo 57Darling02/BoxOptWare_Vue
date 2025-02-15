@@ -23,7 +23,12 @@
     <div class="dialog" style="position: relative; display: flex; flex-direction: row;">
       <div class="td-container"
         style="flex-direction:column; max-width:90%;max-height: 90%; width: 500px;height: 500px;;position: relative;">
-        <trs3d />
+        <trs3d
+          :main_containers="main_containers"
+          :module_containers="module_containers"
+          :boxes="boxes"
+          :centerOfGravity="centerOfGravity"
+        ></trs3d>
       </div>
       <div class="form-container">
         <el-form :model="form">
@@ -65,9 +70,8 @@
 import { nextTick, onMounted, reactive, ref, watch } from 'vue'
 import { useModuleStore } from '@/store/Module'
 import { ElNotification } from 'element-plus'
-import trs3d from './tres3d.vue'
-import emitter from "@/utils/emitter";
-import { box, module_container } from '@/utils/show3d'
+import trs3d from './tres3dprop.vue'
+import { box, module_container, main_container } from '@/utils/show3d'
 const ModuleStore = useModuleStore()
 const isValid = ref(false)
 const dialogFormVisible = ref(false)
@@ -85,11 +89,15 @@ const form = reactive({
   z: 1
 })
 
+const main_containers = ref([] as main_container[])
+const module_containers = ref([] as module_container[])
+const boxes = ref([] as box[])
+const centerOfGravity = ref([0, 0, 0] as [number, number, number])
 const emitBoxes = () => {
   const { lx, ly, lz, x, y, z } = form
   isValid.value = [lx, ly, lz, x, y, z].every(val => typeof val === 'number')
   if (isValid.value) {
-    emitter.emit('showBoxes', [
+    boxes.value = [
       new box(
         [lx, ly, lz],
         [x, y, z],
@@ -100,19 +108,19 @@ const emitBoxes = () => {
         false,
         'corner'
       )
-    ]);
-    emitter.emit('centerOfGravityPosition', [x+lx/2, y+ly/2, z+lz/2]);
-    emitter.emit('showModules', [
+    ]
+    centerOfGravity.value = [x + lx / 2, y + ly / 2, z + lz / 2];
+    module_containers.value = [
       new module_container(
         [lx, ly, lz],
         [x, y, z],
         '#FFFFE0',
-        true,
-        0,
+        false,
+        0.5,
         true,
         'corner'
       )
-    ]);
+    ];
   }
 }
 watch(form, () => {
@@ -156,12 +164,6 @@ const openDialog = (index: number) => {
     form.z = 1
   }
   dialogFormVisible.value = true
-  nextTick(() => {
-    // 延迟一小段时间再进行 emit 操作
-    setTimeout(() => {
-      emitBoxes()
-    }, 100);
-  })
 }
 
 const confirmForm = () => {

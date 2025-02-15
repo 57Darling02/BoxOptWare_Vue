@@ -173,7 +173,7 @@ export class box extends showbox {
     ) {
         // 调用父类的构造函数
         super(size, position, color, transparent, opacity, wireframe, positionType,id);
-        if(this.color !== ''){
+        if(this.color === ''){
             this.color = getColorByDimensions(this.size)
         }
         

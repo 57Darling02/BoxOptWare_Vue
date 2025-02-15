@@ -15,12 +15,14 @@
     "@pureadmin/utils": "^2.5.0",
     "@tresjs/cientos": "^4.1.0",
     "@tresjs/core": "^4.3.2",
+    "echarts": "^5.6.0",
     "element-plus": "^2.9.3",
     "mitt": "^3.0.1",
     "nivo": "^0.31.0",
     "pinia": "^2.3.1",
     "three": "^0.172.0",
     "vue": "^3.5.13",
+    "vue-echarts": "^7.0.3",
     "vue-router": "^4.5.0"
   },
   "devDependencies": {

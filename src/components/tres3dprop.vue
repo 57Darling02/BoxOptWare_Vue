@@ -1,45 +1,21 @@
 <script lang="ts" setup>
 import { TresCanvas } from '@tresjs/core'
 import { OrbitControls } from '@tresjs/cientos';
-import { reactive, onUnmounted, computed, ref } from 'vue';
-import emitter from '@/utils/emitter';
-import { box, module_container, main_container, type ShowParamsType } from '@/utils/show3d'
+import { computed, defineProps} from 'vue';
+import { box, module_container, main_container} from '@/utils/show3d'
 
+const props = defineProps<{
+  main_containers: main_container[];
+  module_containers: module_container[];
+  boxes: box[];
+  centerOfGravity: [number,number,number]
+}>();
 
-// 定义一个航空集装箱
-// 实例化默认主容器
-const default_main_containers: main_container[] = [
-  new main_container(
-    [5, 5, 5] as [number, number, number],
-    [0, 0, 0] as [number, number, number],
-    undefined, // 使用默认 color
-    true,
-    0,
-    true,
-    'center' // 使用默认 positionType
-  )
-];
-
-// 实例化默认标准模块
-const default_module_containers: module_container[] = [];
-
-// 实例化默认货物
-const default_boxes: box[] = [];
-
-
-const showparams = reactive<ShowParamsType>({
-  main_containers: default_main_containers,
-  module_containers: default_module_containers,
-  boxes: default_boxes
-})
-
-
-const centerOfGravity = ref([0, 0, 0] as [number, number, number]);
 const bestView = computed<[x: number, y: number, z: number]>(() => {
   let maxX = -Infinity;
   let maxY = -Infinity;
   let maxZ = -Infinity;
-  const allObjects = [...showparams.main_containers, ...showparams.module_containers, ...showparams.boxes];
+  const allObjects = [...props.main_containers, ...props.module_containers, ...props.boxes];
   for (const obj of allObjects) {
     const [X, Y, Z] = obj.centerPosition;
     const [lx, ly, lz] = obj.size;
@@ -55,7 +31,7 @@ const modulecenter = computed<[x: number, y: number, z: number]>(() => {
   let sumY = 0;
   let sumZ = 0;
   const allObjects = [
-    ...showparams.module_containers,
+    ...props.module_containers,
   ];
 
   if (allObjects.length === 0) {
@@ -98,8 +74,8 @@ function rotateAroundXAxis(originalPosition: [number, number, number]): [number,
 const floorPosition = computed<[x: number, y: number, z: number]>(() => {
   let minZ = Infinity;
   const allObjects = [
-    ...showparams.module_containers,
-    ...showparams.boxes
+    ...props.module_containers,
+    ...props.boxes
   ];
 
   if (allObjects.length === 0) {
@@ -113,30 +89,7 @@ const floorPosition = computed<[x: number, y: number, z: number]>(() => {
   }
   return [modulecenter.value[0], modulecenter.value[1], minZ]
 });
-emitter.on('update-showParams', (params) => {
-  Object.assign(showparams, params)
-});
 
-
-emitter.on('showBoxes', (params: unknown) => {
-  const boxParams = params as box[];
-  showparams.boxes = boxParams;
-});
-
-emitter.on('showModules', (params: unknown) => {
-  const boxParams = params as module_container[];
-  showparams.module_containers = boxParams;
-});
-emitter.on('centerOfGravityPosition', (params: unknown) => {
-  const Params = params as [number, number, number];
-  centerOfGravity.value = Params;
-});
-onUnmounted(() => {
-  emitter.off('update-showParams')
-  emitter.off('showBoxes')
-  emitter.off('showModules')
-  emitter.off('centerOfGravityPosition')
-})
 
 </script>
 
@@ -153,13 +106,13 @@ onUnmounted(() => {
         :shadow-mapSize-height="2048" />
 
       <!-- 绘制模块 -->
-      <!-- <TresMesh v-for="(box, index) in showparams.module_containers" :key="box.id" :position="box.centerPosition">
+      <!-- <TresMesh v-for="(box, index) in props.module_containers" :key="box.id" :position="box.centerPosition">
       <TresBoxGeometry :args="box.size" />
       <TresMeshToonMaterial :transparent="box.transparent" :opacity="box.opacity" :wireframe="box.wireframe"
         color="#ffffff" />
     </TresMesh> -->
       <!-- 绘制模块 -->
-      <TresMesh v-for="(box, index) in showparams.module_containers" :key="box.id" :position="box.centerPosition">
+      <TresMesh v-for="(box, index) in props.module_containers" :key="index" :position="box.centerPosition">
         <!-- 实体部分 -->
         <TresBoxGeometry :args="box.size" />
         <TresMeshToonMaterial :transparent="box.transparent" :opacity="box.opacity" :wireframe="box.wireframe"
@@ -176,7 +129,7 @@ onUnmounted(() => {
 
 
       <!-- 使用 v-for 遍历 boxes 数组创建多个货物 -->
-      <TresMesh v-for="(box, index) in showparams.boxes" :key="box.id" :position="box.centerPosition">
+      <TresMesh v-for="(box, index) in props.boxes" :key="index" :position="box.centerPosition">
         <!-- 绑定大小 -->
         <TresBoxGeometry :args="box.size" />
         <TresMeshToonMaterial :transparent="box.transparent" :opacity="box.opacity" :wireframe="box.wireframe"
@@ -190,7 +143,7 @@ onUnmounted(() => {
       </TresMesh>
 
       <!-- 绘制重心 -->
-      <TresMesh :position="centerOfGravity">
+      <TresMesh :position="props.centerOfGravity">
         <!-- 球体几何体 -->
         <TresSphereGeometry :radius="1" :widthSegments="1" :heightSegments="1" />
         <!-- 材质，使用深颜色 -->
