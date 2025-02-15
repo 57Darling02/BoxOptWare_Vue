@@ -362,28 +362,16 @@ function finalcheck() {
 }
 
 //展示
-const main_containers = reactive([] as main_container[])
-const module_containers = reactive([] as module_container[])
-const boxes = reactive([] as box[])
-const centerOfGravity = reactive([0, 0, 0] as [number, number, number])
+const main_containers = ref([] as main_container[])
+const module_containers = ref([] as module_container[])
+const boxes = ref([] as box[])
+const centerOfGravity = ref([0, 0, 0] as [number, number, number])
 
 function show(Boxes: box[] = [], modules: module_container[] = [], gravityCenter: [number, number, number]) {
-    // 清空原有数据
-    boxes.splice(0, boxes.length);
-    module_containers.splice(0, module_containers.length);
-
-    // 添加新数据
-    Boxes.forEach(box => boxes.push(box));
-    modules.forEach(module => module_containers.push(module));
-
-    // 更新重心坐标
-    centerOfGravity[0] = gravityCenter[0];
-    centerOfGravity[1] = gravityCenter[1];
-    centerOfGravity[2] = gravityCenter[2];
-
-    // module_containers.assign = modules;
-    // centerOfGravity.value = gravityCenter;
-    // boxes.value = Boxes;
+    
+    module_containers.value = modules;
+    centerOfGravity.value = gravityCenter;
+    boxes.value = Boxes;
 
 }
 
