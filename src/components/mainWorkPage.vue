@@ -60,18 +60,22 @@
 
                 </div>
                 <div v-else-if="stepnum == 2" class="show">
-                    <tres3d :main_containers="main_containers" :module_containers="module_containers" :boxes="boxes"
+                    <tres3d :main_containers="main_containers" :module_containers="module_containers" :boxes="boxes" :outline="outline"
                         :centerOfGravity="centerOfGravity"></tres3d>
                 </div>
             </el-main>
         </el-container>
         <el-aside max-width="25%" style="display: flex; flex-direction: column">
+           
             <el-scrollbar>
                 <div class="sidebarbox">
                     <el-steps style="max-width: 600px" :active="stepnum" finish-status="success" align-center>
                         <el-step />
                         <el-step />
                     </el-steps>
+                </div>
+                <div class="sidebarbox" v-if="stepnum == 2">
+                    <el-switch v-model="outline" class="mb-2" active-text="描边" inactive-text="不描边" align-center/>
                 </div>
                 <div v-if="stepnum == 0" class="sidebarbox">
                     - 选择集装箱、货物种类及数量
@@ -162,7 +166,7 @@ import tres3d from './tres3dprop.vue'
 import { MainCalculate } from '@/utils/cul_module'
 import { storeToRefs } from 'pinia'
 import EChartsPie from '@/components/EChartsPie.vue';
-
+const outline = ref(true)
 const containerStore = useContainerStore()
 const { container_list } = storeToRefs(containerStore)
 const geometric_center = computed<[x: number, y: number, z: number]>(() => {

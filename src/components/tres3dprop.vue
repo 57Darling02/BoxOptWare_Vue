@@ -1,15 +1,17 @@
 <script lang="ts" setup>
 import { TresCanvas } from '@tresjs/core'
-import { OrbitControls } from '@tresjs/cientos';
-import { computed, defineProps} from 'vue';
-import { box, module_container, main_container} from '@/utils/show3d'
-
-const props = defineProps<{
+import { OrbitControls,Outline } from '@tresjs/cientos';
+import { computed, defineProps, ref ,withDefaults} from 'vue';
+import { box, module_container, main_container } from '@/utils/show3d'
+const props = withDefaults(defineProps<{
   main_containers: main_container[];
   module_containers: module_container[];
   boxes: box[];
-  centerOfGravity: [number,number,number]
-}>();
+  centerOfGravity: [number, number, number];
+  outline?:Boolean
+}>(),{
+  outline: () => false,
+});
 
 const bestView = computed<[x: number, y: number, z: number]>(() => {
   let maxX = -Infinity;
@@ -24,7 +26,7 @@ const bestView = computed<[x: number, y: number, z: number]>(() => {
     maxZ = Math.max(maxZ, Z + lz);
   }
 
-  return [2*maxX-modulecenter.value[0], 2*maxY-modulecenter.value[1], 2*maxZ-modulecenter.value[2]]
+  return [2 * maxX - modulecenter.value[0], 2 * maxY - modulecenter.value[1], 2 * maxZ - modulecenter.value[2]]
 });
 const modulecenter = computed<[x: number, y: number, z: number]>(() => {
   let sumX = 0;
@@ -55,20 +57,20 @@ const modulecenter = computed<[x: number, y: number, z: number]>(() => {
 });
 
 function rotateAroundXAxis(originalPosition: [number, number, number]): [number, number, number] {
-    const [x0, y0, z0] = originalPosition;
-    // 绕 x 轴旋转 -90 度的旋转矩阵
-    const rotationMatrix: number[][] = [
-        [1, 0, 0],
-        [0, 0, 1],
-        [0, -1, 0]
-    ];
+  const [x0, y0, z0] = originalPosition;
+  // 绕 x 轴旋转 -90 度的旋转矩阵
+  const rotationMatrix: number[][] = [
+    [1, 0, 0],
+    [0, 0, 1],
+    [0, -1, 0]
+  ];
 
-    // 进行矩阵乘法计算旋转后的位置
-    const newX = rotationMatrix[0][0] * x0 + rotationMatrix[0][1] * y0 + rotationMatrix[0][2] * z0;
-    const newY = rotationMatrix[1][0] * x0 + rotationMatrix[1][1] * y0 + rotationMatrix[1][2] * z0;
-    const newZ = rotationMatrix[2][0] * x0 + rotationMatrix[2][1] * y0 + rotationMatrix[2][2] * z0;
+  // 进行矩阵乘法计算旋转后的位置
+  const newX = rotationMatrix[0][0] * x0 + rotationMatrix[0][1] * y0 + rotationMatrix[0][2] * z0;
+  const newY = rotationMatrix[1][0] * x0 + rotationMatrix[1][1] * y0 + rotationMatrix[1][2] * z0;
+  const newZ = rotationMatrix[2][0] * x0 + rotationMatrix[2][1] * y0 + rotationMatrix[2][2] * z0;
 
-    return [newX, newY, newZ];
+  return [newX, newY, newZ];
 }
 
 const floorPosition = computed<[x: number, y: number, z: number]>(() => {
@@ -90,14 +92,13 @@ const floorPosition = computed<[x: number, y: number, z: number]>(() => {
   return [modulecenter.value[0], modulecenter.value[1], minZ]
 });
 
-
 </script>
 
 <template>
   <TresCanvas clear-color="#333" :window-size="false">
     <TresPerspectiveCamera :position="bestView" :fov="45" :near="0.1" />
     <OrbitControls :target="modulecenter" :enable-damping="true" :enable-rotate="true" :enable-pan="true"
-      :enable-zoom="true" :max-polar-angle="Math.PI / 2"  />
+      :enable-zoom="true" :max-polar-angle="Math.PI / 2" />
 
     <TresGroup :rotation="[-Math.PI / 2, 0, 0]">
       <!-- 环境光与主光源 -->
@@ -111,36 +112,28 @@ const floorPosition = computed<[x: number, y: number, z: number]>(() => {
       <TresMeshToonMaterial :transparent="box.transparent" :opacity="box.opacity" :wireframe="box.wireframe"
         color="#ffffff" />
     </TresMesh> -->
-      <!-- 绘制模块 -->
+
       <TresMesh v-for="(box, index) in props.module_containers" :key="index" :position="box.centerPosition">
         <!-- 实体部分 -->
         <TresBoxGeometry :args="box.size" />
         <TresMeshToonMaterial :transparent="box.transparent" :opacity="box.opacity" :wireframe="box.wireframe"
           color="#ffffff" />
-
-        <!-- 描边部分 -->
-        <TresLineSegments>
-          <TresEdgesGeometry>
-            <TresBoxGeometry :args="box.size" />
-          </TresEdgesGeometry>
-          <TresLineBasicMaterial color="#00a8ff" :linewidth="0.02" />
-        </TresLineSegments>
       </TresMesh>
 
 
       <!-- 使用 v-for 遍历 boxes 数组创建多个货物 -->
       <TresMesh v-for="(box, index) in props.boxes" :key="index" :position="box.centerPosition">
-        <!-- 绑定大小 -->
         <TresBoxGeometry :args="box.size" />
         <TresMeshToonMaterial :transparent="box.transparent" :opacity="box.opacity" :wireframe="box.wireframe"
           :color="box.color" />
-        <TresLineSegments>
-          <TresEdgesGeometry>
-            <TresBoxGeometry :args="box.size" />
-          </TresEdgesGeometry>
-          <TresLineBasicMaterial color="#00a8ff" :linewidth="0.02" />
-        </TresLineSegments>
+        <Outline :thickness="1.5" color="#000000" :screenspace="true" :transparent="true" :angle="0" v-if="props.outline"/>
       </TresMesh>
+      <!-- <TresMesh v-for="(box, index) in props.boxes" :key="index" :position="box.centerPosition">
+        <<TresBoxGeometry :args="box.size" />
+        <TresMeshToonMaterial :transparent="false" :opacity="0" :wireframe="true"
+          color="#000000" />
+      </TresMesh> -->
+
 
       <!-- 绘制重心 -->
       <TresMesh :position="props.centerOfGravity">
