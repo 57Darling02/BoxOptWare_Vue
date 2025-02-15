@@ -22,7 +22,7 @@
         ]" />
       </div>
       <div class="cl">
-        <h1>模块化装箱示例</h1>
+        <h1>模块化装箱原理</h1>
         <img src="@/asset/image/image1.GIF" alt="模块化装箱示例" >
       </div>
 

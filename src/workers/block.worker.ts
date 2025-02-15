@@ -1,9 +1,9 @@
 import { box, module_container,getLightColorByType } from '@/utils/show3d'
 import { Stack, Box, Space, Problem, Block, Place, PackingState, type FormData, type finalResult } from '@/type'
 
-const MIN_FILL_RATE = 0.5;
+const MIN_FILL_RATE = 0.9;
 const MIN_AREA_RATE = 0.9;
-const MAX_TIMES = 5;
+const MAX_TIMES = 2;
 const MAX_DEPTH = 6;
 const MAX_BRANCH = 5;
 
