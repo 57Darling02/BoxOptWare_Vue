@@ -11,8 +11,8 @@ import {
   TooltipComponent,
   LegendComponent,
 } from 'echarts/components';
-import VChart, { THEME_KEY } from 'vue-echarts';
-import { ref, defineProps, computed, provide } from 'vue';
+import VChart from 'vue-echarts';
+import { ref, defineProps, computed } from 'vue';
 import type { EChartsOption } from 'echarts';
 
 // 使用 echarts 模块和组件
@@ -23,9 +23,6 @@ use([
   TooltipComponent,
   LegendComponent,
 ]);
-
-// 提供 echarts 主题
-provide(THEME_KEY, 'dark');
 
 // 定义 props
 const props = defineProps<{

@@ -1,7 +1,7 @@
 <template>
   <div class="navbar">
     <button type="button" class="title" @click="tohomepage">
-      <span>装什么</span>
+      <span>智拼闪装</span>
       <span class="fa-solid fa-cubes"></span>
     </button>
     <div class="right-buttons">

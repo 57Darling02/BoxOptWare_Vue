@@ -161,7 +161,7 @@ import { ElNotification, ElLoading, type CheckboxValueType } from 'element-plus'
 import tres3d from './tres3dprop.vue'
 import { MainCalculate } from '@/utils/cul_module'
 import { storeToRefs } from 'pinia'
-import EChartsPie from '@/components/EChartsPie.vue';
+import EChartsPie from './EChartsPie.vue';
 
 const containerStore = useContainerStore()
 const { container_list } = storeToRefs(containerStore)

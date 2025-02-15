@@ -14,22 +14,24 @@
       </el-space>
     </div>
     <div class="yl">
-      <EChartsPie
-        :title="'三大集装箱使用量'"
-        :legend-data="['AMF', 'AKE', 'AUU']"
-        :series-data="[
+      <div class="cl">
+        <EChartsPie :title="'航空集装箱使用量'" :legend-data="['AMF', 'AKE', 'AUU']" :series-data="[
           { value: 335, name: 'AMF' },
           { value: 310, name: 'AKE' },
           { value: 234, name: 'AUU' },
-          
-        ]"
-      />
+        ]" />
+      </div>
+      <div class="cl">
+        <h1>模块化装箱示例</h1>
+        <img src="@/asset/image/image1.GIF" alt="模块化装箱示例" >
+      </div>
+
     </div>
   </div>
 </template>
 <script lang='ts' setup>
 import { useRouter } from 'vue-router';
-import EChartsPie from '@/components/EChartsPie.vue';
+import EChartsPie from './EChartsPie.vue';
 const router = useRouter()
 
 const step = [
@@ -81,5 +83,11 @@ const step = [
 .yl {
   display: flex;
   flex: 1
+}
+
+.cl {
+  height: 100%;
+  position: relative;
+  width: 600px;
 }
 </style>

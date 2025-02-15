@@ -24,5 +24,6 @@ export default defineConfig({
   },
   build: {
     outDir: 'docs'
-  }
+  },
+  assetsInclude: ['**/*.GIF']
 })

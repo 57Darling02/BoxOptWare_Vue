@@ -175,7 +175,7 @@ const show = () => {
         [0, 0, 0],
         0,
         '#A39480',
-        false,
+        true,
         0.5,
         false,
         'center'
@@ -187,14 +187,29 @@ const show = () => {
         [0, 0, 0],
         '#FFFFE0',
         false,
-        1,
+        0,
         true,
         'center'
       )
     ];
   } else {
     //航空集装箱建模输入
-
+    let mds = []
+    for(const i of container_list.value[childIndex.value-1].module){
+      const {x,y,z,lx,ly,lz} = i
+      mds.push(
+        new module_container(
+        [lx, ly, lz],
+        [x, y, z],
+        '#FFFFE0',
+        true,
+        0.5,
+        false,
+        'corner'
+      )
+      )
+    }
+    module_containers.value = mds
   }
 }
 watch(currentform, (newValue: any, oldValue) => {
