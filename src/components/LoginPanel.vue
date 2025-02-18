@@ -192,7 +192,7 @@ async function login() {
         ElNotification({
             message: `${form_data.username} 用户登入成功`,
         })
-        router.replace({name:'mainWorkPage'})
+        router.push({name:'HelpPage'})
         // alert(`username: ${form_data.username} \npassword: ${form_data.password} \nrem:${form_data.remb}`)
     } catch (error: any) {
         alert('An error occurred: ' + error.message);
