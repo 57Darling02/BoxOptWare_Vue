@@ -1,4 +1,5 @@
 <template style="height:100%">
+    <Starrysky/>
     <div class="MainPage">
         <div class="nav">
             <navbar />
@@ -17,6 +18,7 @@ width: 100vw;
 display: flex;
 align-self: auto;
 flex-direction: column;
+background-color: red;
 }
 .MainPage .nav{
 display: flex;
@@ -39,5 +41,5 @@ justify-content: center;
 import navbar from './navbar.vue';
 import { RouterView } from 'vue-router';
 import { useUserStore } from '@/store/User'
-
+import Starrysky from './Starrysky.vue'
 </script>

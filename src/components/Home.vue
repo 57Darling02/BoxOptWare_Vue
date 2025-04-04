@@ -2,9 +2,9 @@
   <div class="homePage">
     <div class="show1">
       <h1>
-        装什么？我来帮你！
+        智拼模组
       </h1>
-      <label>一个集装箱装载决策平台</label>
+      <label>航空集模块化智能装箱平台</label>
       <div class="button-container">
         <RouterLink :to="{name:'workpage'}" class="try-button">试一下</RouterLink>
         <RouterLink :to="{name:'login'}" class="login-button">登入</RouterLink>
@@ -37,6 +37,7 @@ import { RouterLink } from 'vue-router'
 label {
   animation: fadeInUp 1s ease-in-out 0.6s forwards;
   opacity: 0;
+  color: #8a9ba8;
 }
 
 .show1 h1 {
@@ -46,6 +47,8 @@ label {
   /* 添加 forwards 使动画结束后保持最后一帧的状态 */
   opacity: 0;
   /* 初始时设置元素透明 */
+  color: #e0f7ff; /* 浅冰蓝色 */
+  /* text-shadow: 0 0 8px #00ffff;  */
 }
 
 /* 按钮容器样式 */

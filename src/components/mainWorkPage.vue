@@ -114,8 +114,8 @@
                         </div>
 
                         <br />
-                        <button
-                            @click="show(finalresult.container.allbox, finalresult.container.allmodules, finalresult.container.gravityCenter)">3D</button>
+                        <!-- <button
+                            @click="show(finalresult.container.allbox, finalresult.container.allmodules, finalresult.container.gravityCenter)">3D</button> -->
                     </div>
                     <div v-for="(module, index) in finalresult.modules" class="sidebarbox"
                         :key="`module_${module.name}_${index}`"
@@ -134,8 +134,8 @@
                                 {{ Box_list[finalForm.boxes[index].id].name }} 数量为 {{ module.num_list[index] }}
                             </div>
                         </div>
-                        <button :key="`module_${module.name}`"
-                            @click="show(module.boxes, [module.showModule], module.gravityCenter)">3D</button>
+                        <!-- <button :key="`module_${module.name}`"
+                            @click="show(module.boxes, [module.showModule], module.gravityCenter)">3D</button> -->
                     </div>
                 </div>
             </el-scrollbar>

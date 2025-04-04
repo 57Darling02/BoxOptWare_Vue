@@ -1,7 +1,7 @@
 <template>
   <div class="navbar">
     <button type="button" class="title" @click="tohomepage">
-      <span>智拼闪装</span>
+      <span>智拼模组</span>
       <span class="fa-solid fa-cubes"></span>
     </button>
     <div class="right-buttons">
@@ -109,15 +109,16 @@ function tohomepage() {
 .navbar button>span {
   transition: all 0.3s ease-in-out;
   grid-area: stack;
-  color: #fff;
-  /* 确保图标所在span字体颜色为白色 */
+  color: #00ffff; /* 纯青色 */
+  text-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
   font-size: 1.3rem;
 }
 
 .navbar .right-buttons button>span {
   transition: all 0.3s ease-in-out;
   grid-area: stack;
-  color: #fff;
+  color: #00ffff; /* 纯青色 */
+  text-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
   font-size: 1rem;
 }
 
