@@ -1,9 +1,11 @@
 <template style="height:100%">
-    <Starrysky/>
+    <Starrysky />
+    
     <div class="MainPage">
         <div class="nav">
             <navbar />
         </div>
+        
         <div class="show">
             <RouterView />
         </div>
@@ -13,26 +15,27 @@
 
 <style scoped>
 .MainPage {
-height: 100vh;
-width: 100vw;
-display: flex;
-align-self: auto;
-flex-direction: column;
-background-color: red;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-self: auto;
+    flex-direction: column;
 }
-.MainPage .nav{
-display: flex;
-width: 100vw;
-height: 50px;
+
+.MainPage .nav {
+    display: flex;
+    width: 100vw;
+    height: 50px;
 
 }
-.MainPage .show{
-width: 100%;
-height: 100%;
-overflow: auto;
-display: flex;
-align-items: center;
-justify-content: center;
+
+.MainPage .show {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
 }
 </style>

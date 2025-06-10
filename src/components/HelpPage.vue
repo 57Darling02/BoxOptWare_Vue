@@ -1,5 +1,10 @@
 <template>
   <div class="main_page">
+    
+
+    
+
+    
     <div class="stepHelp">
       <el-space wrap>
         <el-card v-for="s in step" :key="s.stepnum" class="box-card" style="width: 250px; margin: 10px;">
@@ -14,6 +19,9 @@
       </el-space>
     </div>
     <div class="yl">
+      
+
+      
       <div class="cl">
         <EChartsPie :title="'航空集装箱使用量'" :legend-data="['AMF', 'AKE', 'AUU']" :series-data="[
           { value: 335, name: 'AMF' },
@@ -22,12 +30,14 @@
         ]" />
       </div>
       <div class="cl">
+        
         <h1>模块化装箱原理</h1>
         <img src="@/asset/image/image1.GIF" alt="模块化装箱示例" >
       </div>
-
     </div>
+    
   </div>
+  
 </template>
 <script lang='ts' setup>
 import { useRouter } from 'vue-router';

@@ -81,7 +81,7 @@ const menuItems = ref<MenuItem[]>([
         index: '4',
         title: '关于我们',
         icon: 'fa-regular fa-messages-question',
-        routeName: '',
+        routeName: 'About',
         type: 'menuItem'
     }
 ]);

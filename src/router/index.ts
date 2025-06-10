@@ -53,6 +53,11 @@ const router = createRouter({
                             path:'mainwork',
                             component:() => import('@/components/mainWorkPage.vue'),
                         },
+                        {
+                            name:"About",
+                            path:'about',
+                            component:() => import('@/views/AboutPage.vue'),
+                        },
                         
                     ]
                 }
