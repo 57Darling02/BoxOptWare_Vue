@@ -33,9 +33,6 @@
 </template>
 
 <style scoped>
-* {
-    font-family: "azy";
-}
 
 #login-form {
     display: flex;
